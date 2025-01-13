@@ -1,18 +1,18 @@
-import PropTypes from 'prop-types';
 import React, { useEffect, useRef } from 'react';
 import cx from 'clsx';
 
 const DEFAULT_CLASS = 'react-tabs__tab';
-const DEFAULT_PROPS = {
+const defaultProps = {
   className: DEFAULT_CLASS,
   disabledClassName: `${DEFAULT_CLASS}--disabled`,
   focus: false,
   id: null,
-  panelId: null,
   selected: false,
   selectedClassName: `${DEFAULT_CLASS}--selected`,
 };
 
+/*
+Left for TS migration
 const propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.array,
@@ -25,15 +25,14 @@ const propTypes = {
     PropTypes.object,
   ]),
   disabled: PropTypes.bool,
-  tabIndex: PropTypes.string,
   disabledClassName: PropTypes.string,
   focus: PropTypes.bool, // private
   id: PropTypes.string, // private
-  panelId: PropTypes.string, // private
   selected: PropTypes.bool, // private
   selectedClassName: PropTypes.string,
-  tabRef: PropTypes.func,
-};
+  tabIndex: PropTypes.string,
+  tabRef: PropTypes.func, // private
+};*/
 
 const Tab = (props) => {
   let nodeRef = useRef();
@@ -44,13 +43,15 @@ const Tab = (props) => {
     disabledClassName,
     focus,
     id,
-    panelId,
     selected,
     selectedClassName,
     tabIndex,
     tabRef,
     ...attributes
-  } = props;
+  } = {
+    ...defaultProps,
+    ...props,
+  };
 
   useEffect(() => {
     if (selected && focus) {
@@ -70,10 +71,10 @@ const Tab = (props) => {
         if (tabRef) tabRef(node);
       }}
       role="tab"
-      id={id}
+      id={`tab${id}`}
       aria-selected={selected ? 'true' : 'false'}
       aria-disabled={disabled ? 'true' : 'false'}
-      aria-controls={panelId}
+      aria-controls={`panel${id}`}
       tabIndex={tabIndex || (selected ? '0' : null)}
       data-rttab
     >
@@ -81,8 +82,7 @@ const Tab = (props) => {
     </li>
   );
 };
-Tab.propTypes = propTypes;
 
 Tab.tabsRole = 'Tab';
-Tab.defaultProps = DEFAULT_PROPS;
+
 export default Tab;

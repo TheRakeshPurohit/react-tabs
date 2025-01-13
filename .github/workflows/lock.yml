@@ -1,0 +1,22 @@
+name: 'Lock Threads'
+
+on:
+  schedule:
+    - cron: '36 5 * * 2'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+  discussions: write
+
+concurrency:
+  group: lock
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v5
+        with:
+          log-output: true

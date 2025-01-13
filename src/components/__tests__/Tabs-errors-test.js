@@ -5,7 +5,15 @@ import Tab from '../Tab';
 import TabList from '../TabList';
 import TabPanel from '../TabPanel';
 import Tabs from '../Tabs';
-import { reset as resetIdCounter } from '../../helpers/uuid';
+
+jest.mock('react', () => {
+  const originalModule = jest.requireActual('react');
+
+  return {
+    ...originalModule,
+    useId: () => ':r0:',
+  };
+});
 
 describe('<Tabs />', () => {
   let consoleErrorMock;
@@ -13,15 +21,11 @@ describe('<Tabs />', () => {
   function assertPropTypeWarning(message, nth = 1) {
     expect(consoleErrorMock).toHaveBeenNthCalledWith(
       nth,
-      expect.anything(),
-      expect.anything(),
       expect.stringMatching(message),
-      expect.anything(),
     );
   }
 
   beforeEach(() => {
-    resetIdCounter();
     consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
   });
 

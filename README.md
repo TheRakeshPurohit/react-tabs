@@ -1,10 +1,12 @@
-# react-tabs [![npm version](https://img.shields.io/npm/v/react-tabs.svg)](https://www.npmjs.com/package/react-tabs) [![codecov](https://codecov.io/gh/reactjs/react-tabs/branch/main/graph/badge.svg?token=XnEVrthAub)](https://codecov.io/gh/reactjs/react-tabs)
+# react-tabs [![npm version](https://img.shields.io/npm/v/react-tabs.svg)](https://www.npmjs.com/package/react-tabs) [![Coverage Status](https://coveralls.io/repos/github/reactjs/react-tabs/badge.svg?branch=main)](https://coveralls.io/github/reactjs/react-tabs?branch=main)
 
 An accessible and easy tab component for ReactJS.
 
 https://reactcommunity.org/react-tabs/
 
-> Supports React 16.8.0 or newer
+> Version 5 or newer of `react-tabs` needs react version 18 or newer
+>
+> Version 4 of `react-tabs` needs react version 16.8 or newer
 
 <ins><blockquote class="rich-diff-level-zero"> <p class="rich-diff-level-one">react-tabs was tested on real mobile devices and browsers with<br>
 <img src="./examples/src/images/Browserstack-logo.svg" height="50" alt="Browserstack">
@@ -22,17 +24,6 @@ or
 ```bash
 npm install --save react-tabs
 ```
-
-You can also use react-tabs directly as UMD build in an HTML document by adding
-
-```html
-<script src="https://unpkg.com/react-tabs/dist/react-tabs.development.js" />
-<!-- or -->
-<script src="https://unpkg.com/react-tabs/dist/react-tabs.production.min.js" />
-```
-
-For example usages of the UMD builds have a look at the [`old_examples/umd`](./old_examples/umd/) folder.
-The development UMD build also needs the package `prop-types` being loaded besides `react`.
 
 ## Basic Example
 
@@ -58,19 +49,6 @@ export default () => (
 ```
 
 ## API
-
-### resetIdCounter(): void
-
-Allows reseting the internal id counter which is used to generate unique id's for tabs and tab panels.
-
-You should never need to use this in the browser. Only if you are running an isomorphic react app that is rendered on the server you should call `resetIdCounter()` before every page render so that the ids that get generated on the server match the ids generated in the browser.
-
-```js
-import { resetIdCounter } from 'react-tabs';
-
-resetIdCounter();
-ReactDOMServer.renderToString(...);
-```
 
 ## Components
 
@@ -342,23 +320,6 @@ When using LESS you can easily import the default styles
 @import '../../path/to/node_modules/react-tabs/style/react-tabs.less';
 ```
 
-### UMD
-
-When using the UMD version of react-tabs you can easily use the default styles by adding
-
-```html
-<html>
-  <head>
-    ...
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/react-tabs/style/react-tabs.css"
-    />
-  </head>
-  ...
-</html>
-```
-
 ### Custom Style
 
 You can also always just simply copy the default style to your own css/scss/less and modify it to your own needs. The changelog will always tell you when classes change and we also consider changes that break the styling as semver major.
@@ -374,16 +335,21 @@ Possible values for tabsRole are:
 - Tab
 - TabPanel
 - TabList
+- Tabs
 
 #### Pass through properties
 
 Note: Because of how react-tabs works internally (it uses cloning to opaquely control various parts of the tab state), you need to pass any incoming props to the component you're wrapping. The easiest way to do this is to use the rest and spread operators, e.g. see `{...otherProps}` below.
 
-```javascript
+```tsx
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
+import type { ReactTabsFunctionComponent, TabProps } from 'react-tabs';
 
 // All custom elements should pass through other props
-const CustomTab = ({ children, ...otherProps }) => (
+const CustomTab: ReactTabsFunctionComponent<TabProps> = ({
+  children,
+  ...otherProps
+}) => (
   <Tab {...otherProps}>
     <h1>{children}</h1>
   </Tab>

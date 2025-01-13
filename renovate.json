@@ -10,7 +10,7 @@
     "automerge": true
   },
   "postUpdateOptions": [
-    "yarnDedupeHighest"
+    "pnpmDedupe"
   ],
   "semanticCommits": "enabled",
   "semanticCommitType": "fix",
@@ -21,6 +21,11 @@
         "devDependencies"
       ],
       "semanticCommitType": "chore"
+    },
+    {
+      "matchPackageNames": ["pnpm"],
+      "updateTypes": ["minor", "patch"],
+      "automerge": true
     },
     {
       "matchDepTypes": [

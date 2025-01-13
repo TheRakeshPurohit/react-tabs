@@ -1,7 +1,6 @@
-import PropTypes from 'prop-types';
-import React, { cloneElement, useRef } from 'react';
+import { checkPropTypes } from 'prop-types';
+import React, { cloneElement, useRef, useId } from 'react';
 import cx from 'clsx';
-import uuid from '../helpers/uuid';
 import { childrenPropType } from '../helpers/propTypes';
 import { getTabsCount as getTabsCountHelper } from '../helpers/count';
 import { deepMap } from '../helpers/childrenDeepMap';
@@ -33,6 +32,7 @@ function determineCanUseActiveElement(environment) {
       env.document &&
       env.document.activeElement
     );
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     // Work around for IE bug when accessing document.activeElement in an iframe
     // Refer to the following resources:
@@ -50,6 +50,8 @@ const defaultProps = {
 
 const propTypes = {
   children: childrenPropType,
+  /*
+  Left for TS migration
   direction: PropTypes.oneOf(['rtl', 'ltr']),
   className: PropTypes.oneOfType([
     PropTypes.string,
@@ -58,6 +60,7 @@ const propTypes = {
   ]),
   disabledTabClassName: PropTypes.string,
   disableUpDownKeys: PropTypes.bool,
+  disableLeftRightKeys: PropTypes.bool,
   domRef: PropTypes.func,
   focus: PropTypes.bool,
   forceRenderTabPanel: PropTypes.bool,
@@ -65,13 +68,13 @@ const propTypes = {
   selectedIndex: PropTypes.number.isRequired,
   selectedTabClassName: PropTypes.string,
   selectedTabPanelClassName: PropTypes.string,
-  environment: PropTypes.object,
+  environment: PropTypes.object,*/
 };
 
 const UncontrolledTabs = (props) => {
+  checkPropTypes(propTypes, props, 'prop', 'UncontrolledTabs');
   let tabNodes = useRef([]);
   let tabIds = useRef([]);
-  let panelIds = useRef([]);
   const ref = useRef();
 
   function setSelected(index, event) {
@@ -180,15 +183,14 @@ const UncontrolledTabs = (props) => {
     } = props;
 
     tabIds.current = tabIds.current || [];
-    panelIds.current = panelIds.current || [];
     let diff = tabIds.current.length - getTabsCount();
 
     // Add ids if new tabs have been added
     // Don't bother removing ids, just keep them in case they are added again
     // This is more efficient, and keeps the uuid counter under control
+    const id = useId();
     while (diff++ < 0) {
-      tabIds.current.push(uuid());
-      panelIds.current.push(uuid());
+      tabIds.current.push(`${id}${tabIds.current.length}`);
     }
 
     // Map children to dynamically setup refs
@@ -225,7 +227,6 @@ const UncontrolledTabs = (props) => {
                 tabNodes.current[key] = node;
               },
               id: tabIds.current[listIndex],
-              panelId: panelIds.current[listIndex],
               selected,
               focus: selected && (focus || wasTabFocused),
             };
@@ -242,8 +243,7 @@ const UncontrolledTabs = (props) => {
         });
       } else if (isTabPanel(child)) {
         const props = {
-          id: panelIds.current[index],
-          tabId: tabIds.current[index],
+          id: tabIds.current[index],
           selected: selectedIndex === index,
         };
 
@@ -261,7 +261,7 @@ const UncontrolledTabs = (props) => {
   }
 
   function handleKeyDown(e) {
-    const { direction, disableUpDownKeys } = props;
+    const { direction, disableUpDownKeys, disableLeftRightKeys } = props;
     if (isTabFromContainer(e.target)) {
       let { selectedIndex: index } = props;
       let preventDefault = false;
@@ -281,8 +281,8 @@ const UncontrolledTabs = (props) => {
       // keyCode is deprecated and only used here for IE
 
       if (
-        e.code === 'ArrowLeft' ||
-        e.keyCode === 37 /* arrow left */ ||
+        (!disableLeftRightKeys &&
+          (e.keyCode === 37 || e.code === 'ArrowLeft')) /* arrow left */ ||
         (!disableUpDownKeys &&
           (e.keyCode === 38 || e.code === 'ArrowUp')) /* arrow up */
       ) {
@@ -295,8 +295,8 @@ const UncontrolledTabs = (props) => {
         preventDefault = true;
         useSelectedIndex = true;
       } else if (
-        e.code === 'ArrowRight' ||
-        e.keyCode === 39 /* arrow right */ ||
+        (!disableLeftRightKeys &&
+          (e.keyCode === 39 || e.code === 'ArrowRight')) /* arrow right */ ||
         (!disableUpDownKeys &&
           (e.keyCode === 40 || e.code === 'ArrowDown')) /* arrow down */
       ) {
@@ -385,8 +385,12 @@ const UncontrolledTabs = (props) => {
     selectedTabPanelClassName, // unused
     environment, // unused
     disableUpDownKeys, // unused
+    disableLeftRightKeys, // unused
     ...attributes
-  } = props;
+  } = {
+    ...defaultProps,
+    ...props,
+  };
   return (
     <div
       {...attributes}
@@ -403,6 +407,5 @@ const UncontrolledTabs = (props) => {
     </div>
   );
 };
-UncontrolledTabs.defaultProps = defaultProps;
-UncontrolledTabs.propTypes = propTypes;
+
 export default UncontrolledTabs;

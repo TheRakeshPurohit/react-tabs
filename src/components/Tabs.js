@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import { checkPropTypes } from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import {
   childrenPropType,
@@ -12,7 +12,10 @@ const MODE_CONTROLLED = 0;
 const MODE_UNCONTROLLED = 1;
 const propTypes = {
   children: childrenPropType,
-  direction: PropTypes.oneOf(['rtl', 'ltr']),
+  onSelect: onSelectPropType,
+  selectedIndex: selectedIndexPropType,
+  /*
+Left for TS migration
   className: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.array,
@@ -20,16 +23,16 @@ const propTypes = {
   ]),
   defaultFocus: PropTypes.bool,
   defaultIndex: PropTypes.number,
+  direction: PropTypes.oneOf(['rtl', 'ltr']),
   disabledTabClassName: PropTypes.string,
   disableUpDownKeys: PropTypes.bool,
+  disableLeftRightKeys: PropTypes.bool,
   domRef: PropTypes.func,
+  environment: PropTypes.object,
   focusTabOnClick: PropTypes.bool,
   forceRenderTabPanel: PropTypes.bool,
-  onSelect: onSelectPropType,
-  selectedIndex: selectedIndexPropType,
   selectedTabClassName: PropTypes.string,
-  selectedTabPanelClassName: PropTypes.string,
-  environment: PropTypes.object,
+  selectedTabPanelClassName: PropTypes.string,*/
 };
 const defaultProps = {
   defaultFocus: false,
@@ -39,6 +42,7 @@ const defaultProps = {
   defaultIndex: null,
   environment: null,
   disableUpDownKeys: false,
+  disableLeftRightKeys: false,
 };
 
 const getModeFromProps = (props) => {
@@ -66,11 +70,21 @@ For more information about controlled and uncontrolled mode of react-tabs see ht
  *          It is initialized from the prop defaultFocus, and after the first render it is reset back to false. Later it can become true again when using keys to navigate the tabs.
  */
 const Tabs = (props) => {
-  const { children, defaultFocus, defaultIndex, focusTabOnClick, onSelect } =
-    props;
+  checkPropTypes(propTypes, props, 'prop', 'Tabs');
+  const {
+    children,
+    defaultFocus,
+    defaultIndex,
+    focusTabOnClick,
+    onSelect,
+    ...attributes
+  } = {
+    ...defaultProps,
+    ...props,
+  };
 
   const [focus, setFocus] = useState(defaultFocus);
-  const [mode] = useState(getModeFromProps(props));
+  const [mode] = useState(getModeFromProps(attributes));
   const [selectedIndex, setSelectedIndex] = useState(
     mode === MODE_UNCONTROLLED ? defaultIndex || 0 : null,
   );
@@ -91,7 +105,7 @@ const Tabs = (props) => {
     }, [tabsCount]);
   }
 
-  checkForIllegalModeChange(props, mode);
+  checkForIllegalModeChange(attributes, mode);
 
   const handleSelected = (index, last, event) => {
     // Call change event handler
@@ -111,7 +125,7 @@ const Tabs = (props) => {
     }
   };
 
-  let subProps = { ...props };
+  let subProps = { ...props, ...attributes };
 
   subProps.focus = focus;
   subProps.onSelect = handleSelected;
@@ -125,8 +139,6 @@ const Tabs = (props) => {
   return <UncontrolledTabs {...subProps}>{children}</UncontrolledTabs>;
 };
 
-Tabs.propTypes = propTypes;
-Tabs.defaultProps = defaultProps;
 Tabs.tabsRole = 'Tabs';
 
 export default Tabs;

@@ -1,10 +1,11 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 import Tab from '../Tab';
 import { TabWrapper } from './helpers/higherOrder';
 
 function expectToMatchSnapshot(component) {
-  expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  const { container } = render(component);
+  expect(container.firstChild).toMatchSnapshot();
 }
 
 describe('<Tab />', () => {
@@ -25,7 +26,7 @@ describe('<Tab />', () => {
 
   it('should support being selected', () => {
     expectToMatchSnapshot(
-      <Tab selected id="abcd" panelId="1234">
+      <Tab selected id="abcd">
         Hello
       </Tab>,
     );
